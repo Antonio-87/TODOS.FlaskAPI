@@ -1,0 +1,11 @@
+venv
+.env
+media
+migrations
+__pycache__
+.pytest_cache
+.coverage
+*.log
+.isort.cfg
+.mypy.ini
+.vscode
