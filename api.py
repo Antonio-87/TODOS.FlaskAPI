@@ -1,12 +1,15 @@
 import datetime
-from os import abort
+import os
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from dotenv import load_dotenv
 
 # Настройка приложения и подключения к базе
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://username:password@localhost/db_name"
+load_dotenv()
+
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
@@ -37,7 +40,7 @@ tasks_schema = TaskSchema(many=True)
 def create_task():
 
     if not request.json or "title" not in request.json:
-        abort(400, "Missing title in request data")
+        os.abort(400, "Missing title in request data")
 
     title = request.json["title"]
     description = request.json.get("description", "")
@@ -72,7 +75,7 @@ def update_task(id):
     task = Task.query.get_or_404(id)
 
     if not request.json:
-        abort(400, "No data provided for update")
+        os.abort(400, "No data provided for update")
 
     title = request.json.get("title", task.title)
     description = request.json.get("description", task.description)
