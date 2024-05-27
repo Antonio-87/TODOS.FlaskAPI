@@ -1,6 +1,7 @@
-import datetime
+from datetime import datetime
 import os
 from flask import Flask, request, jsonify
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from dotenv import load_dotenv
