@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
@@ -17,13 +17,19 @@ ma = Marshmallow(app)
 
 # Создание модели для задач
 class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(200))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+        db.DateTime,
+        default=datetime.now(timezone.utc),
+        onupdate=datetime.now(timezone.utc),
     )
+
+
+with app.app_context():
+    db.create_all()
 
 
 # Создание схемы сериализации с использованием Marshmallow
@@ -41,7 +47,7 @@ tasks_schema = TaskSchema(many=True)
 def create_task():
 
     if not request.json or "title" not in request.json:
-        os.abort(400, "Missing title in request data")
+        abort(400, "Missing title in request data")
 
     title = request.json["title"]
     description = request.json.get("description", "")
@@ -76,7 +82,7 @@ def update_task(id):
     task = Task.query.get_or_404(id)
 
     if not request.json:
-        os.abort(400, "No data provided for update")
+        abort(400, "No data provided for update")
 
     title = request.json.get("title", task.title)
     description = request.json.get("description", task.description)

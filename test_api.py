@@ -1,25 +1,16 @@
-import os
-import tempfile
 import pytest
 
 from flask_api import TaskSchema, app, db, Task
 
 
-# Фикстура для создания клиента приложения
+# Фикстура для создания клиента приложения и базы данных
 @pytest.fixture
 def client():
-    # Создание временной базы данных для тестов
-    db_fd, db_path = tempfile.mkstemp()
-    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql:///" + db_path
-
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
     with app.test_client() as client:
         with app.app_context():
             db.create_all()
         yield client
-
-    # Удаление временной базы данных после завершения тестов
-    os.close(db_fd)
-    os.unlink(db_path)
 
 
 # Тест на создание задачи
@@ -98,3 +89,10 @@ def test_task_schema():
         assert task_schema["id"] == task.id
         assert task_schema["title"] == task.title
         assert task_schema["description"] == task.description
+
+
+# После всех тестов убедитесь, что данные очищены из базы данных
+def test_cleanup():
+    with app.app_context():
+        db.session.remove()
+        db.drop_all()
