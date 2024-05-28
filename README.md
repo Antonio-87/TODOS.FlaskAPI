@@ -1,3 +1,12 @@
+# Настройки
+
+- python -m venv venv
+- pip install -r requirements.txt
+- создать в корневой дирректории файл .env c переменной окружения
+  SQLALCHEMY_DATABASE_URI=mysql://user_name:password@localhost:port/db_name"
+- pytest
+- python flask_api.py
+
 Документация к API:
 
 # API для управления задачами
